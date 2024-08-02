@@ -1,4 +1,4 @@
-name: ChatGPT Test
+name: ChatGPT Action
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ jobs:
     steps:
     - name: ChatGPT query
       env:
-        CHATGPT_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         QUERY: ${{ github.event.inputs.query }}
       run: |
         echo "Domanda: $QUERY"
@@ -20,4 +20,5 @@ jobs:
           -H 'Authorization: Bearer $OPENAI_API_KEY' \
           -H 'Content-Type: application/json' \
           -d '{"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": "'"$QUERY"'"}]}' \
-          | jq '.'
+          | jq -r '.choices[0].message.content' \
+          | echo "Risposta: $(cat)"
