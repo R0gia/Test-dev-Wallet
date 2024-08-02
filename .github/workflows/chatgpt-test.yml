@@ -12,12 +12,11 @@ jobs:
     - name: ChatGPT query
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        QUERY: ${{ github.event.inputs.query }}
       run: |
-        echo "Domanda: $QUERY"
+        echo "OPENAI_API_KEY: $OPENAI_API_KEY"
         curl -X POST \
           https://api.openai.com/v1/chat/completions \
           -H 'Authorization: Bearer $OPENAI_API_KEY' \
           -H 'Content-Type: application/json' \
-          -d '{"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": "'"$QUERY"'"}]}' \
+          -d '{"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": "Ciao"}]}' \
           | jq '.'
