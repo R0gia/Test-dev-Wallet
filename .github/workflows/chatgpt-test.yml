@@ -1,0 +1,34 @@
+name: ChatGPT Test
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  chatgpt:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Run ChatGPT query
+      id: chatgpt
+      run: |
+        # Query di testing
+        INPUT="Ciao, che giorno è oggi?"
+        echo "Query: $INPUT"
+        RESPONSE=$(curl -s -X POST https://api.openai.com/v1/engines/davinci-codex/completions \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+          -d '{
+                "prompt": "'"$INPUT"'",
+                "max_tokens": 150
+              }' | jq -r '.choices[0].text')
+        echo "response=$RESPONSE" >> $GITHUB_ENV
+
+    - name: Print ChatGPT response
+      run: |
+        echo "ChatGPT Response: $RESPONSE"
