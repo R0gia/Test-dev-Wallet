@@ -1,6 +1,6 @@
 name: mobsfscan
 
-#Analizza codice sorgente
+#Analizza solamente codice sorgente?
 
 on:
   push:
