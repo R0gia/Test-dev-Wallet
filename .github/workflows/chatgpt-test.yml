@@ -1,21 +1,58 @@
-name: ChatGPT Action
+name: ChatGPT Test
 
 on:
   workflow_dispatch:
     inputs:
-      query: { description: 'Inserisci la tua domanda' }
+      query:
+        description: 'Inserisci la tua domanda per ChatGPT'
+        required: true
 
 jobs:
-  chatgpt:
+  query-chatgpt:
     runs-on: ubuntu-latest
     steps:
-    - name: ChatGPT query
-      env:
-        OPENAI_API_KEY: ${OPENAI_API_KEY}
-      run: |
-        curl -X POST \
-          https://api.openai.com/v1/chat/completions \
-          -H 'Authorization: Bearer $OPENAI_API_KEY' \
-          -H 'Content-Type: application/json' \
-          -d '{"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": "Ciao"}]}' \
-          | jq '.'
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install openai
+
+      - name: Query ChatGPT
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python - <<EOF
+          import openai
+          import os
+
+          openai.api_key = os.getenv("OPENAI_API_KEY")
+
+          response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": "${{ github.event.inputs.query }}"}
+            ]
+          )
+
+          print(response['choices'][0]['message']['content'])
+          EOF
+
+      - name: Create issue with response
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Risposta di ChatGPT a: ${{ github.event.inputs.query }}',
+              body: `${{ steps.query-chatgpt.outputs.response }}`
+            })
