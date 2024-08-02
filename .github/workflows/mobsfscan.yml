@@ -1,5 +1,7 @@
 name: mobsfscan
 
+#Analizza codice sorgente
+
 on:
   push:
     branches: [ master, main ]
