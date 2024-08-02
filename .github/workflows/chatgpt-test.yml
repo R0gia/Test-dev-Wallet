@@ -1,9 +1,9 @@
-name: ChatGPT Action
+name: ChatGPT Test
 
 on:
   workflow_dispatch:
     inputs:
-      query: { description: 'Ciao, che giorno è oggi?' }
+      query: { description: 'Inserisci la tua domanda' }
 
 jobs:
   chatgpt:
@@ -20,5 +20,4 @@ jobs:
           -H 'Authorization: Bearer $CHATGPT_API_KEY' \
           -H 'Content-Type: application/json' \
           -d '{"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": "'"$QUERY"'"}]}' \
-          | jq -r '.choices[0].message.content' \
-          | echo "Risposta: $(cat)"
+          | jq '.'
